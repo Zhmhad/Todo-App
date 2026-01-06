@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate To-Do Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Inline Lucide icons as components
+        const Plus = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const Trash2 = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+        const Edit2 = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+        const Check = ({size = 16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>;
+        const Clock = ({size = 20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+        const Flag = ({size = 14}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+        const Target = ({size = 20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
+        const TrendingUp = ({size = 20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+        const Award = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>;
+        const Moon = ({size = 24}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+        const Sun = ({size = 24}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+        const Play = ({size = 16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+        const Pause = ({size = 16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+        const RotateCcw = ({size = 16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>;
+
+        const UltimateTodoApp = () => {
+          const [tasks, setTasks] = useState([]);
+          const [newTask, setNewTask] = useState('');
+          const [selectedCategory, setSelectedCategory] = useState('Semua');
+          const [selectedPriority, setSelectedPriority] = useState('Medium');
+          const [deadline, setDeadline] = useState('');
+          const [estimatedTime, setEstimatedTime] = useState('');
+          const [notes, setNotes] = useState('');
+          const [view, setView] = useState('today');
+          const [darkMode, setDarkMode] = useState(false);
+          const [editingTask, setEditingTask] = useState(null);
+          const [pomodoroActive, setPomodoroActive] = useState(false);
+          const [pomodoroTime, setPomodoroTime] = useState(25 * 60);
+          const [activeTaskId, setActiveTaskId] = useState(null);
+          
+          const categories = ['Kuliah', 'Kerja', 'Personal', 'Belajar', 'Tugas', 'Project'];
+          const priorities = ['Low', 'Medium', 'High', 'Urgent'];
+          
+          useEffect(() => {
+            const saved = localStorage.getItem('tasks');
+            if (saved) setTasks(JSON.parse(saved));
+          }, []);
+          
+          useEffect(() => {
+            if (tasks.length > 0) localStorage.setItem('tasks', JSON.stringify(tasks));
+          }, [tasks]);
+          
+          useEffect(() => {
+            let interval;
+            if (pomodoroActive && pomodoroTime > 0) {
+              interval = setInterval(() => setPomodoroTime(t => t - 1), 1000);
+            } else if (pomodoroTime === 0) {
+              setPomodoroActive(false);
+              if (activeTaskId) {
+                const task = tasks.find(t => t.id === activeTaskId);
+                if (task) updateTask(activeTaskId, { pomodoros: (task.pomodoros || 0) + 1, xp: (task.xp || 0) + 25 });
+              }
+              alert('🍅 Pomodoro selesai!');
+              setPomodoroTime(25 * 60);
+            }
+            return () => clearInterval(interval);
+          }, [pomodoroActive, pomodoroTime, activeTaskId]);
+          
+          const addTask = () => {
+            if (newTask.trim()) {
+              setTasks([...tasks, {
+                id: Date.now(),
+                title: newTask,
+                category: selectedCategory === 'Semua' ? 'Personal' : selectedCategory,
+                priority: selectedPriority,
+                deadline, estimatedTime, notes,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                xp: 0, pomodoros: 0
+              }]);
+              resetForm();
+            }
+          };
+          
+          const resetForm = () => {
+            setNewTask(''); setDeadline(''); setEstimatedTime(''); setNotes(''); setEditingTask(null);
+          };
+          
+          const updateTask = (id, updates) => {
+            setTasks(tasks.map(t => t.id === id ? {...t, ...updates} : t));
+          };
+          
+          const toggleComplete = (id) => {
+            const task = tasks.find(t => t.id === id);
+            const xpGain = !task.completed ? getXPForTask(task) : -getXPForTask(task);
+            updateTask(id, {completed: !task.completed, xp: (task.xp||0) + xpGain, completedAt: !task.completed ? new Date().toISOString() : null});
+          };
+          
+          const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
+          
+          const getXPForTask = (task) => ({Low: 10, Medium: 25, High: 50, Urgent: 100}[task.priority] || 25);
+          
+          const startEditing = (task) => {
+            setEditingTask(task);
+            setNewTask(task.title);
+            setSelectedCategory(task.category);
+            setSelectedPriority(task.priority);
+            setDeadline(task.deadline);
+            setEstimatedTime(task.estimatedTime);
+            setNotes(task.notes);
+          };
+          
+          const saveEdit = () => {
+            if (editingTask && newTask.trim()) {
+              updateTask(editingTask.id, {title: newTask, category: selectedCategory, priority: selectedPriority, deadline, estimatedTime, notes});
+              resetForm();
+            }
+          };
+          
+          const formatTime = (s) => {
+            const m = Math.floor(s/60), sec = s%60;
+            return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+          };
+          
+          const isToday = (d) => d && new Date(d).toDateString() === new Date().toDateString();
+          const isThisWeek = (d) => d && new Date(d) >= new Date() && new Date(d) <= new Date(Date.now() + 7*24*60*60*1000);
+          
+          const filteredTasks = tasks.filter(t => {
+            const catMatch = selectedCategory === 'Semua' || t.category === selectedCategory;
+            const viewMatch = view === 'all' || (view === 'today' && isToday(t.deadline)) || (view === 'week' && isThisWeek(t.deadline));
+            return catMatch && viewMatch;
+          }).sort((a,b) => ({Urgent:4,High:3,Medium:2,Low:1}[b.priority]||0) - ({Urgent:4,High:3,Medium:2,Low:1}[a.priority]||0));
+          
+          const stats = {
+            total: tasks.length,
+            completed: tasks.filter(t => t.completed).length,
+            totalXP: tasks.reduce((s,t) => s + (t.xp||0), 0),
+            level: Math.floor(tasks.reduce((s,t) => s + (t.xp||0), 0) / 100) + 1,
+            streak: (() => {
+              const dates = tasks.filter(t => t.completed && t.completedAt).map(t => new Date(t.completedAt).toDateString()).sort();
+              if (!dates.length || !dates.includes(new Date().toDateString())) return 0;
+              let s = 1;
+              for (let i = 1; i < 30; i++) {
+                if (dates.includes(new Date(Date.now() - i*24*60*60*1000).toDateString())) s++; else break;
+              }
+              return s;
+            })(),
+            todayCompleted: tasks.filter(t => t.completed && isToday(t.completedAt)).length,
+            totalPomodoros: tasks.reduce((s,t) => s + (t.pomodoros||0), 0)
+          };
+          
+          const getPriorityColor = (p) => ({
+            Low: darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800',
+            Medium: darkMode ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800',
+            High: darkMode ? 'bg-orange-900 text-orange-200' : 'bg-orange-100 text-orange-800',
+            Urgent: darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800'
+          }[p] || 'bg-gray-100');
+          
+          const bg = darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50';
+          const card = darkMode ? 'bg-gray-800 text-white' : 'bg-white';
+          const text = darkMode ? 'text-gray-200' : 'text-gray-800';
+          const border = darkMode ? 'border-gray-700' : 'border-gray-200';
+          
+          return (
+            <div className={`min-h-screen ${bg} p-4`}>
+              <div className="max-w-7xl mx-auto">
+                <div className={`${card} rounded-2xl shadow-xl p-6 mb-6`}>
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Ultimate To-Do Manager</h1>
+                      <p className={`text-sm ${text} opacity-70`}>Mahasiswa Pekerja Edition 💪</p>
+                    </div>
+                    <button onClick={() => setDarkMode(!darkMode)} className="p-3 rounded-full hover:bg-opacity-10 hover:bg-gray-500">
+                      {darkMode ? <Sun /> : <Moon />}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-purple-50'}`}>
+                      <div className="flex items-center gap-2 mb-1"><Target size={20} className="text-purple-600"/><span className="text-sm font-semibold">Level</span></div>
+                      <p className="text-2xl font-bold">{stats.level}</p>
+                      <p className="text-xs opacity-70">{stats.totalXP} XP</p>
+                    </div>
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-green-50'}`}>
+                      <div className="flex items-center gap-2 mb-1"><Check size={20} className="text-green-600"/><span className="text-sm font-semibold">Selesai</span></div>
+                      <p className="text-2xl font-bold">{stats.completed}/{stats.total}</p>
+                      <p className="text-xs opacity-70">Hari ini: {stats.todayCompleted}</p>
+                    </div>
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-orange-50'}`}>
+                      <div className="flex items-center gap-2 mb-1"><TrendingUp size={20} className="text-orange-600"/><span className="text-sm font-semibold">Streak</span></div>
+                      <p className="text-2xl font-bold">{stats.streak}</p>
+                      <p className="text-xs opacity-70">Hari berturut-turut</p>
+                    </div>
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-red-50'}`}>
+                      <div className="flex items-center gap-2 mb-1"><Clock size={20} className="text-red-600"/><span className="text-sm font-semibold">Pomodoros</span></div>
+                      <p className="text-2xl font-bold">{stats.totalPomodoros}</p>
+                      <p className="text-xs opacity-70">Total sesi fokus</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-1">
+                    <div className={`${card} rounded-2xl shadow-xl p-6`}>
+                      <h2 className="text-2xl font-bold mb-4">{editingTask ? 'Edit Task' : 'Tambah Task Baru'}</h2>
+                      <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} onKeyPress={e => e.key === 'Enter' && (editingTask ? saveEdit() : addTask())} placeholder="Apa yang perlu dikerjakan?" className={`w-full p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'} mb-3`}/>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className={`p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
+                          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <select value={selectedPriority} onChange={e => setSelectedPriority(e.target.value)} className={`p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
+                          {priorities.map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                      </div>
+                      <input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} className={`w-full p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'} mb-3`}/>
+                      <input type="text" value={estimatedTime} onChange={e => setEstimatedTime(e.target.value)} placeholder="Estimasi waktu" className={`w-full p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'} mb-3`}/>
+                      <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Catatan..." rows="3" className={`w-full p-3 rounded-lg border ${border} ${darkMode ? 'bg-gray-700' : 'bg-white'} mb-3`}/>
+                      <button onClick={editingTask ? saveEdit : addTask} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg flex items-center justify-center gap-2">
+                        <Plus/>{editingTask ? 'Simpan' : 'Tambah Task'}
+                      </button>
+                      {editingTask && <button onClick={resetForm} className={`w-full mt-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} py-3 rounded-lg font-semibold`}>Batal</button>}
+                      <div className={`mt-6 p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-red-50'} border-2 ${darkMode ? 'border-red-900' : 'border-red-200'}`}>
+                        <h3 className="font-bold mb-2">🍅 Pomodoro Timer</h3>
+                        <div className="text-4xl font-bold text-center mb-4 text-red-600">{formatTime(pomodoroTime)}</div>
+                        <div className="flex gap-2">
+                          {!pomodoroActive ? (
+                            <button onClick={() => {setActiveTaskId(null); setPomodoroActive(true);}} className="flex-1 bg-green-600 text-white py-2 rounded-lg flex items-center justify-center gap-2"><Play/>Start</button>
+                          ) : (
+                            <button onClick={() => setPomodoroActive(false)} className="flex-1 bg-yellow-600 text-white py-2 rounded-lg flex items-center justify-center gap-2"><Pause/>Pause</button>
+                          )}
+                          <button onClick={() => {setPomodoroTime(25*60); setPomodoroActive(false);}} className="flex-1 bg-gray-600 text-white py-2 rounded-lg flex items-center justify-center gap-2"><RotateCcw/>Reset</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="lg:col-span-2">
+                    <div className={`${card} rounded-2xl shadow-xl p-6`}>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        <button onClick={() => setSelectedCategory('Semua')} className={`px-4 py-2 rounded-lg font-semibold ${selectedCategory === 'Semua' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>Semua</button>
+                        {categories.map(c => <button key={c} onClick={() => setSelectedCategory(c)} className={`px-4 py-2 rounded-lg font-semibold ${selectedCategory === c ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>{c}</button>)}
+                      </div>
+                      <div className="flex gap-2 mb-6">
+                        {['today', 'week', 'all'].map(v => <button key={v} onClick={() => setView(v)} className={`flex-1 py-2 rounded-lg font-semibold ${view === v ? 'bg-blue-600 text-white' : darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>{v === 'today' ? 'Hari Ini' : v === 'week' ? 'Minggu Ini' : 'Semua'}</button>)}
+                      </div>
+                      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                        {filteredTasks.length === 0 ? (
+                          <div className="text-center py-12 opacity-50"><p>Belum ada task 💪</p></div>
+                        ) : filteredTasks.map(task => (
+                          <div key={task.id} className={`p-4 rounded-xl border-2 ${task.completed ? (darkMode ? 'bg-gray-700 border-green-900 opacity-60' : 'bg-green-50 border-green-200 opacity-60') : (darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200')}`}>
+                            <div className="flex items-start gap-3">
+                              <button onClick={() => toggleComplete(task.id)} className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center ${task.completed ? 'bg-green-600 border-green-600' : (darkMode ? 'border-gray-500' : 'border-gray-300')}`}>
+                                {task.completed && <Check size={16} className="text-white"/>}
+                              </button>
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h3 className={`font-semibold ${task.completed ? 'line-through opacity-60' : ''}`}>{task.title}</h3>
+                                  <div className="flex gap-2">
+                                    <button onClick={() => {setActiveTaskId(task.id); setPomodoroActive(true);}} disabled={task.completed} className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${task.completed ? 'opacity-30' : ''}`}><Play size={16} className="text-green-600"/></button>
+                                    <button onClick={() => startEditing(task)} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"><Edit2/></button>
+                                    <button onClick={() => deleteTask(task.id)} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"><Trash2/></button>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${darkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>{task.category}</span>
+                                  <span className={`px-2 py-1 rounded text-xs font-semibold ${getPriorityColor(task.priority)}`}>{task.priority}</span>
+                                  {task.pomodoros > 0 && <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800">🍅 {task.pomodoros}</span>}
+                                  {task.xp > 0 && <span className="px-2 py-1 rounded text-xs font-semibold bg-purple-100 text-purple-800">⭐ {task.xp} XP</span>}
+                                </div>
+                                {task.deadline && <p className="text-sm opacity-70 flex items-center gap-1 mb-1"><Clock size={14}/>{new Date(task.deadline).toLocaleString('id-ID')}</p>}
+                                {task.estimatedTime && <p className="text-sm opacity-70 flex items-center gap-1 mb-1"><Flag/>{task.estimatedTime}</p>}
+                                {task.notes && <p className="text-sm opacity-70 mt-2 p-2 rounded bg-gray-100 dark:bg-gray-600">{task.notes}</p>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {stats.level >= 5 && (
+                  <div className={`${card} rounded-2xl shadow-xl p-6 mt-6`}>
+                    <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Award className="text-yellow-500"/>Achievements!</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {stats.level >= 5 && <div className={`p-4 rounded-xl text-center ${darkMode ? 'bg-yellow-900' : 'bg-yellow-100'}`}><div className="text-3xl mb-2">🏆</div><p className="font-semibold">Warrior</p><p className="text-xs opacity-70">Level 5</p></div>}
+                      {stats.streak >= 7 && <div className={`p-4 rounded-xl text-center ${darkMode ? 'bg-orange-900' : 'bg-orange-100'}`}><div className="text-3xl mb-2">🔥</div><p className="font-semibold">On Fire</p><p className="text-xs opacity-70">7 Days</p></div>}
+                      {stats.totalPomodoros >= 20 && <div className={`p-4 rounded-xl text-center ${darkMode ? 'bg-red-900' : 'bg-red-100'}`}><div className="text-3xl mb-2">🍅</div><p className="font-semibold">Focused</p><p className="text-xs opacity-70">20 Pomodoros</p></div>}
+                      {stats.completed >= 50 && <div className={`p-4 rounded-xl text-center ${darkMode ? 'bg-green-900' : 'bg-green-100'}`}><div className="text-3xl mb-2">✅</div><p className="font-semibold">Productive</p><p className="text-xs opacity-70">50 Tasks</p></div>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<UltimateTodoApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
