@@ -133,6 +133,14 @@ body:not(.editing) #eacts{display:none}
     <span><i class="tag"></i>Fokus / belajar</span><span><i class="tag rest"></i>Istirahat</span>
     <span><i class="tag sehat"></i>Olahraga</span><span><i class="tag reward"></i>Reward / game</span>
   </div>
+  <details class="prog" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">Aturan main</summary>
+    <ol style="margin:10px 0 0;padding-left:20px;color:var(--mut);font-size:14px;display:grid;gap:6px">
+      <li>Game hanya setelah Blok 1 dan Blok 2 hari itu tercentang.</li>
+      <li>Hari buruk = hari minimum: kerjakan Blok 1 dan recap saja, sisanya masuk buffer Sabtu.</li>
+      <li>Blok yang terlewat tidak digeser ke malam. Masuk buffer Sabtu.</li>
+      <li>Tugas baru: kerjakan kerangkanya di hari tugas diberikan.</li>
+      <li>Evaluasi tiap Minggu. Jika centang di bawah 70% dua minggu berturut-turut, perkecil jadwal, jangan menambah target.</li>
+    </ol></details>
   <footer>Jadwal dan checklist tersimpan otomatis di browser ini (tidak dibagikan ke perangkat lain). Checklist direset otomatis setiap Senin. Pengingat hanya muncul saat halaman terbuka.</footer>
 </div>
 
@@ -144,87 +152,106 @@ const RAW=[
 {n:"Senin",x:"Hari NLP",r:`
 05.30-06.00|Bangun, ibadah, tilawah
 06.00-07.00|Masak + sarapan
-07.00-08.30|Review materi NLP minggu lalu / baca jurnal
-09.00-12.00|NLP (catat aktif, tanya dosen)
+07.00-08.30|Bersiap + berangkat ke kampus
+08.30-09.00|Preview materi NLP (15-30 menit)
+09.00-12.00|Kuliah NLP (catat aktif, tanya dosen)
 12.00-13.00|ISHOMA
-13.00-15.00|Kerjakan tugas NLP / coding praktik
-15.00-16.30|Review ML (preview besok)
-16.30-18.00|Olahraga / jalan
-18.00-19.30|Makan + istirahat
-19.30-21.00|Belajar ringan / baca
-21.00-22.00|Game (reward)
+13.00-15.00|Blok 1: tugas NLP / coding praktik
+15.30-17.30|Blok 2: preview ML + lanjut portofolio NLP
+15.00-15.30|Istirahat
+17.30-19.30|Olahraga, mandi, makan, ibadah
+19.30-20.00|Recap: tulis 3-5 poin kuliah + daftar besok
+20.00-20.30|Santai
+20.30-22.00|Game (maks 1,5 jam, setelah Blok 1 dan 2 tercentang)
 22.00|Tidur`},
 {n:"Selasa",x:"Metpen & B. Indonesia",r:`
-05.30-07.00|Rutinitas pagi + masak
-07.00-08.30|Baca materi Metodologi Penelitian
-09.00-10.20|Metpen
-10.40-12.00|B. Indonesia
+05.30-06.00|Bangun, ibadah, tilawah
+06.00-07.00|Masak + sarapan
+07.00-08.30|Bersiap + berangkat ke kampus
+08.30-09.00|Preview materi Metodologi Penelitian
+09.00-10.20|Kuliah Metodologi Penelitian
+10.40-12.00|Kuliah Bahasa Indonesia
 12.00-13.00|ISHOMA
-13.00-15.00|Tugas ringan / mulai tugas besar
-15.00-17.00|Deep work: ML/NLP project
-17.00-18.00|Istirahat
-18.00-21.00|Belajar + tugas
-21.00-22.00|Game
+13.00-15.00|Blok 1: tugas Metpen / B. Indonesia
+15.30-17.30|Blok 2: proyek ML/NLP
+15.00-15.30|Istirahat
+17.30-19.30|Olahraga, mandi, makan, ibadah
+19.30-20.00|Recap: tulis 3-5 poin kuliah + daftar besok
+20.00-20.30|Santai
+20.30-22.00|Game (maks 1,5 jam, setelah Blok 1 dan 2 tercentang)
 22.00|Tidur`},
 {n:"Rabu",x:"Sistem Operasi",r:`
-05.30-07.00|Rutinitas + masak
-07.00-08.30|Review Sistem Operasi
-09.00-12.00|Sistem Operasi
+05.30-06.00|Bangun, ibadah, tilawah
+06.00-07.00|Masak + sarapan
+07.00-08.30|Bersiap + berangkat ke kampus
+08.30-09.00|Preview materi Sistem Operasi
+09.00-12.00|Kuliah Sistem Operasi
 12.00-13.00|ISHOMA
-13.00-15.00|Tugas SO / latihan soal
-15.00-17.00|Deep work: ML
-17.00-18.00|Istirahat
-18.00-21.00|Tugas lain
-21.00-22.00|Game
+13.00-15.00|Blok 1: tugas SO + latihan soal
+15.30-17.30|Blok 2: latihan ML (Kaggle, Colab)
+15.00-15.30|Istirahat
+17.30-19.30|Olahraga, mandi, makan, ibadah
+19.30-20.00|Recap: tulis 3-5 poin kuliah + daftar besok
+20.00-20.30|Santai
+20.30-22.00|Game (maks 1,5 jam, setelah Blok 1 dan 2 tercentang)
 22.00|Tidur`},
 {n:"Kamis",x:"Hari Machine Learning",r:`
-05.30-07.00|Rutinitas + masak
-07.00-08.30|Review ML
-09.00-12.00|Machine Learning (fokus utama)
+05.30-06.00|Bangun, ibadah, tilawah
+06.00-07.00|Masak + sarapan
+07.00-08.30|Bersiap + berangkat ke kampus
+08.30-09.00|Preview materi ML
+09.00-12.00|Kuliah Machine Learning (fokus utama)
 12.00-13.00|ISHOMA
-13.00-15.00|Praktik ML (Kaggle, Colab)
-15.00-17.00|Deep work: NLP/ML portfolio
-17.00-18.00|Istirahat
-18.00-21.00|Tugas
-21.00-22.00|Game
+13.00-15.00|Blok 1: praktik ML dari kuliah hari ini
+15.30-17.30|Blok 2: portofolio ML/NLP
+15.00-15.30|Istirahat
+17.30-19.30|Olahraga, mandi, makan, ibadah
+19.30-20.00|Recap: tulis 3-5 poin kuliah + daftar besok
+20.00-20.30|Santai
+20.30-22.00|Game (maks 1,5 jam, setelah Blok 1 dan 2 tercentang)
 22.00|Tidur`},
 {n:"Jumat",x:"Mobile FE",r:`
-05.30-07.00|Rutinitas + masak
-07.00-08.30|Review Mobile FE
-10.20-12.00|Mobile FE Teori
-12.00-13.00|ISHOMA
-13.00-15.00|Istirahat / Jumatan (sesuaikan)
-15.20-17.00|Mobile FE Praktik
-17.00-18.00|Istirahat
-18.00-21.00|Review mingguan ML/NLP + siapkan pertanyaan
-21.00-22.00|Game
+05.30-06.00|Bangun, ibadah, tilawah
+06.00-07.00|Masak + sarapan
+07.30-09.30|Blok 2: ML/NLP (pagi, kepala segar)
+09.30-10.20|Bersiap + berangkat
+10.20-12.00|Kuliah Mobile FE teori
+12.00-13.30|Jumatan + makan (sesuaikan)
+13.30-15.00|Blok 1: tugas Mobile FE
+15.20-17.00|Kuliah Mobile FE praktik
+17.00-19.00|Istirahat, makan, ibadah
+19.00-20.30|Review mingguan ML/NLP + siapkan pertanyaan untuk dosen
+20.30-22.00|Game (maks 1,5 jam, setelah blok hari ini tercentang)
 22.00|Tidur`},
-{n:"Sabtu",x:"Hari Emas",r:`
-05.30-07.00|Rutinitas + masak
-07.00-09.00|Deep work: ML/NLP project (portofolio)
-09.00-11.00|Tugas kuliah yang menumpuk
-11.00-12.00|Istirahat
-13.00-15.00|Belajar AI dari sumber luar (Coursera, fast.ai, paper)
-15.00-17.00|Tugas / review
+{n:"Sabtu",x:"Hari Proyek",r:`
+05.30-06.00|Bangun, ibadah, tilawah
+06.00-07.00|Masak + sarapan
+07.30-09.30|Deep work: portofolio ML/NLP
+09.45-11.45|Catch-up tugas kuliah yang menumpuk
+11.45-13.00|ISHOMA
+13.00-15.00|Belajar mandiri: fondasi matematika/ML (fast.ai, Coursera, paper)
+15.00-17.00|Buffer: blok yang terlewat minggu ini
 17.00-18.00|Olahraga
-18.00-21.00|Game bebas (reward besar)
-21.00-22.00|Rencana minggu depan
+18.00-21.30|Game bebas / santai
 22.00|Tidur`},
-{n:"Minggu",x:"Reset & persiapan",r:`
+{n:"Minggu",x:"Review & persiapan",r:`
+05.30-06.00|Bangun, ibadah, tilawah
 06.00-08.00|Belanja
-08.00-10.00|Masak untuk seminggu (meal prep) + bersih-bersih
-10.00-12.00|Istirahat
-13.00-15.00|Review semua matkul minggu lalu
-15.00-17.00|Deep work AI
+08.00-09.00|Masak sepulang belanja
+09.00-12.00|Istirahat, bersih-bersih, bebas
+12.00-13.00|ISHOMA
+13.00-14.30|Review mingguan semua matkul
+14.30-15.00|Susun target + daftar tugas minggu depan (urut bobot nilai dan deadline)
+15.00-17.00|Opsional: deep work AI (jika ada deadline)
 17.00-18.00|Olahraga
-18.00-21.00|Game / santai
-21.00-22.00|Siapkan jadwal & target minggu depan
+18.00-21.30|Santai / game
+21.30-22.00|Siapkan perlengkapan kuliah besok
 22.00|Tidur`}];
 
 const cat=t=>/game/i.test(t)?"reward":/olahraga/i.test(t)?"sehat":/ishoma|istirahat|tidur|santai/i.test(t)?"rest":"";
 const mm=v=>{const[h,n]=v.split(".");return h*60+ +n};
 const BASE=RAW.map(d=>({n:d.n,x:d.x,rows:d.r.trim().split("\n").map((l,i)=>{const[a,t]=l.split("|"),[s,e]=a.split("-");return{i:String(i),s,e:e||"",t}})}));
-const CK="jadwal-data-v1";
+const CK="jadwal-data-v2";
 let CFG={title:"Jadwal Mingguan",days:JSON.parse(JSON.stringify(BASE))};
 try{const j=JSON.parse(localStorage.getItem(CK));if(j&&j.days&&j.days.length===7)CFG=j}catch(e){}
 let DAYS=CFG.days;
@@ -235,7 +262,7 @@ prep();
 const $=s=>document.querySelector(s), pad=n=>String(n).padStart(2,"0");
 const todayIdx=()=>(new Date().getDay()+6)%7;
 const weekKey=()=>{const d=new Date(),m=new Date(d.getFullYear(),d.getMonth(),d.getDate()-todayIdx());return m.getFullYear()+"-"+pad(m.getMonth()+1)+"-"+pad(m.getDate())};
-const KEY="jadwal-mingguan-v1";
+const KEY="jadwal-mingguan-v2";
 let S={w:weekKey(),c:{},r:true};
 try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.c)S=j}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
