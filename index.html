@@ -71,6 +71,15 @@ footer{margin-top:28px;font-size:12px;color:var(--mut);text-align:center}
 .editing .now,.editing .prog,.editing #acts{display:none}
 body:not(.editing) #eacts{display:none}
 @media (max-width:560px){.erow{grid-template-columns:1fr 1fr 44px}.erow .c{grid-column:1/3;grid-row:2}.erow .x{grid-row:1/3;grid-column:3}.erow.meta{grid-template-columns:1fr}}
+#rev{display:grid;gap:12px;margin-top:16px}
+#rev .prog{margin:0}
+#rev summary{cursor:pointer;font-weight:600}
+#rev label{display:grid;gap:6px;font-size:13px;color:var(--mut);margin-top:12px}
+#rev textarea{width:100%;min-height:76px;resize:vertical;background:var(--card2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;line-height:1.5}
+#rev textarea:focus{outline:2px solid var(--focus);border-color:transparent}
+.rs{font-size:13px;color:var(--mut);margin-top:10px}
+.rp{font-size:13px;margin-top:10px;padding:10px 12px;border-left:3px solid var(--warn);background:var(--card2);border-radius:8px;white-space:pre-wrap}
+.editing #rev{display:none}
 /* toast */
 #toasts{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;z-index:50;display:grid;gap:10px;width:min(360px,calc(100vw - 24px));pointer-events:none}
 .toast{pointer-events:auto;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ac);border-radius:14px;padding:12px 14px;box-shadow:0 14px 36px -12px #000a;display:flex;gap:10px;align-items:flex-start;position:relative;overflow:hidden;animation:in .35s cubic-bezier(.2,.9,.3,1.2)}
@@ -133,6 +142,23 @@ body:not(.editing) #eacts{display:none}
     <span><i class="tag"></i>Fokus / belajar</span><span><i class="tag rest"></i>Istirahat</span>
     <span><i class="tag sehat"></i>Olahraga</span><span><i class="tag reward"></i>Reward / game</span>
   </div>
+  <section id="rev">
+    <details class="prog" open>
+      <summary>Catatan harian: <span id="drT"></span></summary>
+      <div class="rs" id="drS"></div>
+      <div class="rp" id="drP"></div>
+      <label>Apa yang tercapai, dan apa yang menghambat?<textarea id="d1"></textarea></label>
+      <label>Rencana besok untuk mengejar yang belum tercapai<textarea id="d2"></textarea></label>
+      <div class="acts"><button class="btn" id="dcp">Salin yang belum tercapai ke rencana</button></div>
+    </details>
+    <details class="prog">
+      <summary>Review mingguan</summary>
+      <div class="rs" id="wrS"></div>
+      <label>Yang berhasil minggu ini<textarea id="w1"></textarea></label>
+      <label>Hambatan utama<textarea id="w2"></textarea></label>
+      <label>Penyesuaian minggu depan (durasi blok, lokasi, pembagian tugas)<textarea id="w3"></textarea></label>
+    </details>
+  </section>
   <details class="prog" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">Aturan main</summary>
     <ol style="margin:10px 0 0;padding-left:20px;color:var(--mut);font-size:14px;display:grid;gap:6px">
       <li>Game hanya setelah Blok 1 dan Blok 2 hari itu tercentang.</li>
@@ -322,7 +348,7 @@ function render(){
   let wd=0,wt=0;DAYS.forEach((_,i)=>{wd+=dn(i);wt+=total(i)});
   const wp=Math.round(wd/(wt||1)*100);$("#wv").textContent=wd+"/"+wt+" ("+wp+"%)";$("#wb").style.width=wp+"%";
   $("#wk").textContent="Minggu mulai "+S.w;
-  nowCard();
+  nowCard();renderNotes();
 }
 function toggle(i,v){
   S.c[view]=S.c[view]||{};
@@ -372,6 +398,44 @@ function tick(){
 $("#all").onclick=()=>{S.c[view]={};DAYS[view].rows.forEach(r=>S.c[view][r.i]=1);save();render();toast("ok","Ditandai semua","Semua jadwal "+DAYS[view].n+" selesai.")};
 $("#rd").onclick=()=>confirmBox("Reset "+DAYS[view].n+"?","Semua centang pada hari ini akan dihapus.",()=>{delete S.c[view];save();render();toast("warn","Hari direset",DAYS[view].n+" kembali kosong.")});
 $("#rw").onclick=()=>confirmBox("Reset semua hari?","Semua centang minggu ini akan dihapus dan tidak bisa dikembalikan.",()=>{S.c={};save();render();toast("warn","Semua direset","Checklist seminggu kembali kosong.")});
+/* catatan */
+const NK="jadwal-catatan-v2";
+let N={};try{N=JSON.parse(localStorage.getItem(NK))||{}}catch(e){}
+const saveN=()=>{try{localStorage.setItem(NK,JSON.stringify(N))}catch(e){}};
+const wkOff=n=>{const d=new Date(),m=new Date(d.getFullYear(),d.getMonth(),d.getDate()-todayIdx()+n*7);return m.getFullYear()+"-"+pad(m.getMonth()+1)+"-"+pad(m.getDate())};
+const nw=()=>N[S.w]=N[S.w]||{d:{},w:{},p:0};
+const setV=(q,v)=>{const e=$(q);if(document.activeElement!==e)e.value=v||""};
+const pc=i=>Math.round(dn(i)/(total(i)||1)*100);
+function weekPct(){let a=0,b=0;DAYS.forEach((_,i)=>{a+=dn(i);b+=total(i)});return Math.round(a/(b||1)*100)}
+const missed=i=>DAYS[i].rows.filter(r=>r.k===""&&!(S.c[i]||{})[r.i]);
+function renderNotes(){
+  const n=nw(),d=n.d[view]||{},p=weekPct();n.p=p;saveN();
+  const ms=missed(view);
+  $("#drT").textContent=DAYS[view].n;
+  $("#drS").textContent="Tercapai "+dn(view)+"/"+total(view)+" ("+pc(view)+"%). "+(ms.length?"Belum: "+ms.slice(0,6).map(r=>r.t).join("; ")+(ms.length>6?" ...":""):"Semua tercapai.");
+  let rem="";
+  if(view>0){const y=(n.d[view-1]||{}).b;if(y)rem="Rencana dari "+DAYS[view-1].n+":\n"+y}
+  else{const pv=(N[wkOff(-1)]||{}).d,y=pv&&(pv[6]||{}).b;if(y)rem="Rencana dari Minggu lalu:\n"+y}
+  $("#drP").textContent=rem;$("#drP").style.display=rem?"":"none";
+  setV("#d1",d.a);setV("#d2",d.b);setV("#w1",n.w.a);setV("#w2",n.w.b);setV("#w3",n.w.c);
+  const pp=(N[wkOff(-1)]||{}).p;
+  const h=p>=80?"Syarat naik durasi terpenuhi (80% atau lebih).":p>=70?"Tahan durasi blok di level yang sama.":(pp!=null&&pp<70?"Dua minggu berturut-turut di bawah 70%: perkecil jadwal, jangan tambah target.":"Di bawah 70%. Jika terulang minggu depan, perkecil jadwal.");
+  $("#wrS").textContent="Capaian minggu ini "+p+"%. "+DAYS.map((x,i)=>x.n.slice(0,3)+" "+pc(i)+"%").join(", ")+". "+h;
+}
+const sv=f=>e=>{f(nw(),e.target.value);saveN()};
+const dd=n=>n.d[view]=n.d[view]||{};
+$("#d1").oninput=sv((n,v)=>{dd(n).a=v});
+$("#d2").oninput=sv((n,v)=>{dd(n).b=v});
+$("#w1").oninput=sv((n,v)=>{n.w.a=v});
+$("#w2").oninput=sv((n,v)=>{n.w.b=v});
+$("#w3").oninput=sv((n,v)=>{n.w.c=v});
+$("#dcp").onclick=()=>{
+  const ms=missed(view);
+  if(!ms.length){toast("info","Tidak ada yang tertinggal","Semua jadwal "+DAYS[view].n+" tercapai.");return}
+  const x=dd(nw());x.b=(x.b?x.b+"\n":"")+"Kejar besok:\n"+ms.map(r=>"- "+r.t).join("\n");
+  saveN();renderNotes();toast("ok","Disalin","Daftar yang belum tercapai masuk ke rencana.");
+};
+
 /* editor */
 let edit=false;
 const tv=v=>v?v.replace(".",":"):"",fv=v=>v.replace(":",".");
